@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AnIqTooHigh — Independent Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #171717;
+    --border: rgba(255,255,255,0.07);
+    --accent: #c8f05a;
+    --accent2: #5af0c8;
+    --text: #f0ede8;
+    --muted: #6b6b6b;
+    --dim: #3a3a3a;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* noise overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 3rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,10,10,0.85);
+    backdrop-filter: blur(12px);
+  }
+  .nav-logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 3rem 5rem;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+  .hero-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(3.5rem, 8vw, 7rem);
+    line-height: 1.0;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.4s forwards;
+  }
+  .hero-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .hero-sub {
+    max-width: 500px;
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.7;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.6s forwards;
+    margin-bottom: 3rem;
+  }
+  .hero-cta {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.8s forwards;
+  }
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    background: var(--accent);
+    color: #0a0a0a;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary:hover { background: #d4f56a; transform: translateY(-1px); }
+  .btn-ghost {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    border-bottom: 1px solid var(--dim);
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+  .hero-corner {
+    position: absolute;
+    top: 50%;
+    right: 3rem;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    opacity: 0;
+    animation: fadeIn 1s 1s forwards;
+  }
+  .hero-stat {
+    font-family: 'DM Mono', monospace;
+    text-align: right;
+  }
+  .hero-stat-num { font-size: 2.5rem; color: var(--text); line-height: 1; }
+  .hero-stat-label { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+  .hero-divider { width: 1px; height: 40px; background: var(--border); margin: 1rem auto; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* SECTIONS */
+  section { position: relative; z-index: 1; }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 3rem;
+  }
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+  }
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.2rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
+  /* ABOUT */
+  .about {
+    padding: 6rem 3rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .about-left {}
+  .about-text { font-size: 15px; color: var(--muted); line-height: 1.8; margin-bottom: 1.5rem; }
+  .about-text strong { color: var(--text); font-weight: 400; }
+  .about-right { display: flex; flex-direction: column; gap: 1rem; padding-top: 4rem; }
+  .about-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+  .about-pill:hover { border-color: var(--accent); color: var(--accent); }
+  .about-pill-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent2); }
+
+  /* PROJECTS */
+  .projects {
+    padding: 6rem 3rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .projects-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); }
+  .project-card {
+    background: var(--bg);
+    padding: 2rem;
+    transition: background 0.2s;
+    cursor: default;
+  }
+  .project-card:hover { background: var(--surface); }
+  .project-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+  }
+  .project-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .project-status {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+  }
+  .project-status.wip { color: var(--accent2); }
+  .project-status.planned { color: var(--muted); }
+  .project-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    font-weight: 400;
+    margin-bottom: 0.75rem;
+    line-height: 1.2;
+  }
+  .project-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .project-card-footer {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--dim);
+    text-transform: uppercase;
+  }
+
+  /* CREW */
+  .crew {
+    padding: 6rem 3rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .crew-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+  .crew-card {
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    background: var(--surface);
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .crew-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .crew-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+  .crew-name { font-size: 15px; font-weight: 500; margin-bottom: 2px; }
+  .crew-role {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 0.75rem;
+  }
+  .crew-bio { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  /* GAME STATUS */
+  .gamelog {
+    padding: 6rem 3rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .gamelog-inner {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 4rem;
+  }
+  .game-meta { display: flex; flex-direction: column; gap: 1.5rem; }
+  .game-badge {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    background: rgba(200, 240, 90, 0.1);
+    border: 1px solid rgba(200, 240, 90, 0.3);
+    color: var(--accent);
+    width: fit-content;
+  }
+  .game-title-big {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.8rem;
+    line-height: 1.1;
+    font-weight: 400;
+  }
+  .game-platform {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+  .progress-block { margin-top: 1rem; }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .progress-bar {
+    height: 2px;
+    background: var(--surface2);
+    position: relative;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    animation: fillBar 1.5s 0.5s ease-out forwards;
+  }
+  @keyframes fillBar { to { width: var(--w); } }
+  .changelog { display: flex; flex-direction: column; gap: 0; }
+  .log-entry {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 1.5rem;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .log-entry:first-child { border-top: 1px solid var(--border); }
+  .log-version {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    padding-top: 2px;
+  }
+  .log-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .log-desc strong { color: var(--text); font-weight: 400; }
+
+  /* FOOTER */
+  footer {
+    padding: 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.2rem;
+    font-style: italic;
+    color: var(--muted);
+  }
+  .footer-note {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+
+  /* scroll reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#">AnIqTooHigh</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#crew">Crew</a></li>
+    <li><a href="#game">Game</a></li>
+  </ul>
+  <div class="nav-status">
+    <div class="status-dot"></div>
+    Active development
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-label">Independent Studio — Est. 2026</div>
+  <h1 class="hero-title">
+    An<em>Iq</em><br>Too High
+  </h1>
+  <p class="hero-sub">A small independent studio building games, tools, and experiences. Run by a crew that takes their ideas seriously — even if the name suggests otherwise.</p>
+  <div class="hero-cta">
+    <a href="#projects" class="btn-primary">View projects →</a>
+    <a href="#game" class="btn-ghost">Game dev log</a>
+  </div>
+  <div class="hero-corner">
+    <div class="hero-stat">
+      <div class="hero-stat-num">01</div>
+      <div class="hero-stat-label">Game in dev</div>
+    </div>
+    <div class="hero-divider"></div>
+    <div class="hero-stat">
+      <div class="hero-stat-num" id="member-count">—</div>
+      <div class="hero-stat-label">Crew members</div>
+    </div>
+    <div class="hero-divider"></div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">∞</div>
+      <div class="hero-stat-label">Lore files</div>
+    </div>
+  </div>
+</section>
+
+<section class="about reveal" id="about">
+  <div class="about-left">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2 class="section-title">What we are</h2>
+    </div>
+    <p class="about-text">AnIqTooHigh started as a <strong>Discord server</strong> with a joke name and a group of friends who refused to use boring group chats. It became something more — a structured creative operation with roles, schedules, project docs, and now an actual game.</p>
+    <p class="about-text">We build things in <strong>Roblox Studio using Lua</strong>, document everything obsessively, and treat every project like it matters. Because it does.</p>
+    <p class="about-text">The name comes from a meme. The work doesn't.</p>
+  </div>
+  <div class="about-right">
+    <div class="about-pill"><div class="about-pill-dot"></div> Lua / Roblox Studio</div>
+    <div class="about-pill"><div class="about-pill-dot"></div> Game design & systems</div>
+    <div class="about-pill"><div class="about-pill-dot"></div> Community & Discord ops</div>
+    <div class="about-pill"><div class="about-pill-dot"></div> Project documentation</div>
+    <div class="about-pill"><div class="about-pill-dot"></div> Independent publishing</div>
+  </div>
+</section>
+
+<section class="projects reveal" id="projects">
+  <div style="padding: 0 0 0 0; margin: 0 3rem;">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2 class="section-title">Projects</h2>
+    </div>
+  </div>
+  <div style="padding: 0 3rem;">
+  <div class="projects-grid">
+    <div class="project-card">
+      <div class="project-card-top">
+        <span class="project-tag">Roblox / Lua</span>
+        <span class="project-status wip">● In development</span>
+      </div>
+      <div class="project-name">The Main Game</div>
+      <p class="project-desc">A Roblox experience built from scratch — lobby, voting system, custom mechanics. Publishing pending age verification.</p>
+      <div class="project-card-footer">Lead: Owner · Platform: Roblox</div>
+    </div>
+    <div class="project-card">
+      <div class="project-card-top">
+        <span class="project-tag">Community</span>
+        <span class="project-status">● Live</span>
+      </div>
+      <div class="project-name">AnIqTooHigh Discord</div>
+      <p class="project-desc">Structured server with roles, news feed, schedules, and crew bios. The operational hub of the studio.</p>
+      <div class="project-card-footer">Members: Crew only · Status: Active</div>
+    </div>
+    <div class="project-card">
+      <div class="project-card-top">
+        <span class="project-tag">Web</span>
+        <span class="project-status planned">○ This page</span>
+      </div>
+      <div class="project-name">Studio Site</div>
+      <p class="project-desc">Public face of AnIqTooHigh. Projects, crew, and game dev log in one place.</p>
+      <div class="project-card-footer">Stack: HTML · Host: GitHub Pages</div>
+    </div>
+  </div>
+  </div>
+</section>
+
+<section class="crew reveal" id="crew" style="padding-left:3rem; padding-right:3rem;">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <h2 class="section-title">The crew</h2>
+  </div>
+  <div class="crew-grid" id="crew-grid">
+    <div class="crew-card">
+      <div class="crew-avatar">DM</div>
+      <div class="crew-name">Dmitrijs</div>
+      <div class="crew-role">Founder & Dev</div>
+      <div class="crew-bio">Owner of AnIqTooHigh. Game developer, server architect, and the one with the lore files.</div>
+    </div>
+    <div class="crew-card">
+      <div class="crew-avatar">?</div>
+      <div class="crew-name">Member 02</div>
+      <div class="crew-role">Crew</div>
+      <div class="crew-bio">Edit this with your crew's actual names and roles.</div>
+    </div>
+    <div class="crew-card">
+      <div class="crew-avatar">?</div>
+      <div class="crew-name">Member 03</div>
+      <div class="crew-role">Crew</div>
+      <div class="crew-bio">Each person gets a card. Fill in from your DOCX bios.</div>
+    </div>
+    <div class="crew-card">
+      <div class="crew-avatar">?</div>
+      <div class="crew-name">Member 04</div>
+      <div class="crew-role">Crew</div>
+      <div class="crew-bio">Add as many cards as you need.</div>
+    </div>
+  </div>
+</section>
+
+<section class="gamelog reveal" id="game">
+  <div class="gamelog-inner">
+    <div class="game-meta">
+      <div class="section-header" style="margin-bottom:1rem;">
+        <span class="section-num">04</span>
+        <h2 class="section-title">Dev log</h2>
+      </div>
+      <div class="game-badge">● In development</div>
+      <div class="game-title-big">Untitled<br><em style="font-style:italic; color:var(--accent)">Roblox</em><br>Project</div>
+      <div class="game-platform">Platform: Roblox · Engine: Lua</div>
+      <div class="progress-block">
+        <div class="progress-label"><span>Overall progress</span><span>~45%</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="--w: 45%;"></div></div>
+      </div>
+      <div class="progress-block">
+        <div class="progress-label"><span>Voting system</span><span>Done</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="--w: 100%; background: var(--accent2);"></div></div>
+      </div>
+      <div class="progress-block">
+        <div class="progress-label"><span>Lobby / world</span><span>WIP</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="--w: 30%;"></div></div>
+      </div>
+      <div class="progress-block">
+        <div class="progress-label"><span>Publishing</span><span>Pending</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="--w: 5%; background: var(--dim);"></div></div>
+      </div>
+    </div>
+    <div>
+      <div class="changelog">
+        <div class="log-entry">
+          <div class="log-version">v0.3</div>
+          <div class="log-desc"><strong>Voting system complete.</strong> Players can now create and participate in polls in-game. Data persists across sessions.</div>
+        </div>
+        <div class="log-entry">
+          <div class="log-version">v0.2</div>
+          <div class="log-desc"><strong>Lobby scaffold up.</strong> Floating concrete platform in place. Basic spawn and navigation working.</div>
+        </div>
+        <div class="log-entry">
+          <div class="log-version">v0.1</div>
+          <div class="log-desc"><strong>Project started.</strong> Core structure laid out. Lua environment set up in Roblox Studio.</div>
+        </div>
+        <div class="log-entry">
+          <div class="log-version">Next</div>
+          <div class="log-desc"><strong>Passport → publish.</strong> Age verification pending. Game publishes the moment that clears.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">AnIqTooHigh</div>
+  <div class="footer-note">Independent · Est. 2026 · Built with Lua & stubbornness</div>
+</footer>
+
+<script>
+  document.getElementById('member-count').textContent = '04';
+
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.1 });
+  reveals.forEach(r => observer.observe(r));
+</script>
+</body>
+</html>
